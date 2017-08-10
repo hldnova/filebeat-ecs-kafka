@@ -1,0 +1,19 @@
+---
+
+- name: remove filebeat containers on ECS nodes
+  hosts: filebeat
+  gather_facts: no
+  user: "{{ ECS.ssh_user }}"
+  become: true
+  become_user: root
+
+  tasks:
+    - name: stop filebeat container
+      command: docker stop "{{ filebeat.container_name }}"
+      ignore_errors: yes
+      tags: filebeat
+
+    - name: remove filebeat container
+      command: docker rm  "{{ filebeat.container_name }}"
+      ignore_errors: yes
+      tags: filebeat

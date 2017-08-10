@@ -1,0 +1,43 @@
+
+filebeat:
+  # List of prospectors to fetch data.
+  prospectors:
+    -
+      paths:
+        - /opt/emc/caspian/fabric/agent/services/object/main/log/dataheadsvc.log
+
+      input_type: log
+      document_type: accesslog
+      tail_files: true
+      multiline:
+        pattern: "^[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}"
+        negate: true
+        match: after
+      include_lines: ['RequestLog']
+
+fields_under_root: true
+fields:
+   ecs-node-ip: ${ECS_NODE_IP}
+   ecs-vdc-name: ${ECS_VDC_NAME}
+   ecs-vdc-id: ${ECS_VDC_ID}
+
+output:
+
+  ### Logstash as output
+  kafka:
+    #hosts: ["localhost:5044"]
+    hosts: [LOGSTASH_HOSTS]
+    topic: ecs-accesslog
+    use_type: false
+    client_id: "file.beat"
+    worker: 1
+    max_retries: 1
+    bulk_max_size: 2048
+    timeout: 30
+    broker_timeout: 3s
+    keep_alive: 0
+    compression: none
+    max_message_bytes: 1000000
+    required_acks: 1
+    flush_interval: 10
+

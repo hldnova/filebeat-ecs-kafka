@@ -1,0 +1,28 @@
+---
+
+ECS:
+  ssh_user: admin
+
+# -----
+  
+# directory to save downloaded images on localhost
+tmpdir: /tmp
+
+# directoy to upload images on remote hosts
+destdir: /opt/beats/kafka
+
+# container postfix
+postfix: "-kafka"
+
+images:
+  filebeat:
+    image: emccorp/docker-filebeat:5.2.0
+    filename: emccorp-filebeat-image
+
+filebeat:
+  config_file: filebeat.yml
+  config_dir: filebeat{{ postfix }}
+  container_name: filebeat{{ postfix }}
+
+ecslogs:
+  object_main_log: /opt/emc/caspian/fabric/agent/services/object/main/log

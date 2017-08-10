@@ -1,0 +1,26 @@
+---
+- name: stop existing filebeat container 
+  ignore_errors: yes
+  command: docker stop "{{ filebeat.container_name }}"
+
+- name: remove existing filebeat container 
+  ignore_errors: yes
+  command: docker rm "{{ filebeat.container_name }}"
+
+- name: start docker container
+  command: |
+    docker run -d
+               --pid=host
+               --net=host
+               --memory="128m"
+               --restart=always
+               --name="{{ filebeat.container_name }}"
+               -v "{{ destdir }}/{{ filebeat.config_dir }}/{{ filebeat.config_file }}:/filebeat/filebeat.yml"
+               -v  "/var/log/messages:/var/log/syslog"
+               -v "{{ ecslogs.object_main_log }}:{{ ecslogs.object_main_log }}"
+               -e LOGSTASH_HOSTS='{{ output_kafka_hosts }}'
+               -e ECS_VDC_NAME='{{ ecs_vdc_name }}'
+               -e ECS_VDC_ID='{{ ecs_vdc_id }}'
+               -e ECS_NODE_IP=$ECS_NODE_IP
+               "{{ images.filebeat.image }}"
+#               -e ECS_OBJECT_MAIN_LOG='{{ ecslogs.object_main_log }}'
